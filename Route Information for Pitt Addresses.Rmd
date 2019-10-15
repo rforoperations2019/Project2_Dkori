@@ -1,0 +1,110 @@
+---
+title: "Route Information for Pitt Addresses"
+author: "Devraj Kori"
+date: "10/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+library(rmarkdown)
+library(knitr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+require(readxl)
+require(openxlsx)
+require(reshape2)
+require(scales)
+require(gridExtra)
+library(tidycensus)
+#for QWI
+library(httr)
+library(jsonlite)
+library(readr)
+library(leaflet)
+library(sf)
+library(sp)
+library(lwgeom)
+library(rvest)
+```
+
+```{r test_address_points}
+#read in address points
+address_points<-read_sf("Allegheny_County_Address_Points/Allegheny_County_Address_Points.shx")%>%
+          st_transform(crs = "+init=epsg:4326")%>%
+  #select 300 random addresses
+  sample_n(1000)%>%
+  #create address in format for google maps search
+  mutate(gmaps_addr=paste0(gsub(" ","\\+",FULL_ADDRE),
+                            "+",
+                            ZIP_CODE))
+
+leaflet(width = "100%")%>%
+  setView(-80.0005025, 40.4483066, 11.25) %>%
+  addProviderTiles(provider = "CartoDB.Positron")%>%
+  addCircleMarkers(data=address_points,
+                   radius=3)
+
+
+# coordinates<-address_points$geometry
+# save(coordinates,file="selected_address_coordinates.Rdata")
+```
+
+```{r join_address_precinct}
+#technique from this blog: https://mattherman.info/blog/point-in-poly/
+
+#read in read in district boundaries
+list.files("Allegheny_County_Voting_District_Boundaries/")
+district_boundaries<-read_sf("Allegheny_County_Voting_District_Boundaries/Allegheny_County_Voting_District_Boundaries.shx")%>%
+          st_transform(crs = "+init=epsg:4326")
+#join address data with district boundaries
+address_points_districts<-st_join(address_points,district_boundaries,join=st_within)
+
+#read in polling places
+polling_places<-read_sf("Allegheny_County_Polling_Place_locations_November_2017/Allegheny_County_Polling_Place_locations_November_2017.shx")%>%
+  #format address for google maps search
+  mutate(polling_place_addr=paste0(LocName,
+                                   ",",
+                                   "+",
+                                   City,
+                                   ",+",
+                                   "PA",
+                                   "+",
+                                   Zip
+                                   ))%>%
+  #replace any remaining spaces with plus
+  mutate(polling_place_addr=gsub(" ","\\+",polling_place_addr))%>%
+  #remove double plus signs
+  mutate(polling_place_addr=gsub("\\+\\+","\\+",polling_place_addr))
+address_points_precincts<-st_join(address_points_districts,polling_places,st_nearest_feature)
+test<-polling_places%>%
+  filter(House==1271)
+```
+
+
+
+```{r test_api_call}
+# load("google_directions_api_key.RData")
+# start_addr<-address_points_precincts[2,]$gmaps_addr
+# end_addr<-address_points_precincts[2,]$polling_place_addr
+# end_addr
+# test_date<-as.POSIXct(strptime("2019-10-15 11:00:00", "%Y-%m-%d %H:%M:%S"))
+# 
+# url<-paste0('https://maps.googleapis.com/maps/api/directions/json?origin=',
+#             start_addr,'&destination=',
+#             end_addr,
+#             '&departure_time=',
+#             as.integer(test_date),
+#             '&mode=driving',
+#             '&key=',
+#             api_key)
+# test_call<-GET(url=url)%>%content
+
+```
+
+```{r maps_api}
+
+
+```

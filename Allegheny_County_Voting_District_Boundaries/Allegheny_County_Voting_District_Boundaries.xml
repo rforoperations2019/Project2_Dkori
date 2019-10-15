@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?><MD_Metadata xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:xalan="http://xml.apache.org/xalan" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.isotc211.org/2005/gmd">
+    <characterSet>
+        <MD_CharacterSetCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8" codeSpace="ISOTC211/19115">utf8</MD_CharacterSetCode>
+    </characterSet>
+    <hierarchyLevel>
+        <MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset" codeSpace="ISOTC211/19115">dataset</MD_ScopeCode>
+    </hierarchyLevel>
+    <hierarchyLevelName>
+        <gco:CharacterString>dataset</gco:CharacterString>
+    </hierarchyLevelName>
+    <contact gco:nilReason="missing"/>
+    <dateStamp gco:nilReason="missing"/>
+    <metadataStandardName>
+        <gco:CharacterString>ISO 19139 Geographic Information - Metadata - Implementation Specification</gco:CharacterString>
+    </metadataStandardName>
+    <metadataStandardVersion>
+        <gco:CharacterString>2007</gco:CharacterString>
+    </metadataStandardVersion>
+    <identificationInfo>
+        <MD_DataIdentification>
+            <citation gco:nilReason="missing"/>
+            <abstract>
+                <gco:CharacterString>This dataset demarcates municipal voting districts in Allegheny County. These were updated in 2019 to match municipal boundaries.
+
+If viewing this description on the Western Pennsylvania
+Regional Data Center’s open data portal (http://www.wprdc.org), this
+dataset is harvested on a weekly basis from Allegheny County’s GIS data portal
+(http://openac.alcogis.opendata.arcgis.com/). The
+full metadata record for this dataset can also be found on Allegheny County’s
+GIS portal. You can access the metadata record and other resources on the GIS
+portal by clicking on the “Explore” button (and choosing the “Go to resource”
+option) to the right of the “ArcGIS Open Dataset” text below.
+
+Category:  Civic Vitality and Governance
+
+Organization:  Allegheny County
+
+Department:  Elections Division; Department of Administrative
+Services
+
+Temporal
+Coverage:  2016
+
+Data
+Notes:  
+
+Coordinate System: 
+Pennsylvania State Plane South Zone 3702; U.S. Survey Foot
+
+Development Notes:  Allegheny County Elections Districts updated in 2019 to match municipal boundaries.
+
+Other: 
+none
+
+Related
+Document(s):  Data
+Dictionary (https://docs.google.com/spreadsheets/d/1HR24LyBNpLwvJZoaGp-tBGRw0HRoXNIef6nU4UQQMMo/edit?usp=sharing)
+
+Frequency
+- Data Change:  As needed
+
+Frequency
+- Publishing:  As needed
+
+Data
+Steward Name:  Eli Thomas
+
+Data
+Steward Email: gishelp@alleghenycounty.us</gco:CharacterString>
+            </abstract>
+            <purpose>
+                <gco:CharacterString>Allegheny County Voting District Boundaries </gco:CharacterString>
+            </purpose>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>Elections; Allegheny</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>voting areas</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>wards</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>Election Districts</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>elections</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>municipalities</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>boundaries</gco:CharacterString>
+                    </keyword>
+                    <keyword>
+                        <gco:CharacterString>precincts</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
+            <resourceConstraints>
+                <MD_Constraints>
+                    <useLimitation>
+                        <gco:CharacterString>Use Constraints:
+All parties acknowledge that the data is for informational purposes only, there
+is no guarantee as to its completeness or accuracy. Allegheny County Division
+of Computer Services Geographic Information Systems Group is not responsible for
+any reliance upon said data.
+
+Distribution
+Liability:
+The USER shall indemnify, save harmless, and, if requested, defend those
+parties involved with the development and distribution of this data, their
+officers, agents, and employees from and against any suits, claims, or actions
+for injury, death, or property damage arising out of the use of or any defect
+in the FILES or any accompanying documentation. Those parties involved with the
+development and distribution excluded any and all implied warranties, including
+warranties or merchantability and fitness for a particular purpose and makes no
+warranty or representation, either express or implied, with respect to the
+FILES or accompanying documentation, including its quality, performance,
+merchantability, or fitness for a particular purpose. The FILES and
+documentation are provided &amp;quot;as is&amp;quot; and the USER assumes the entire
+risk as to its quality and performance. Those parties involved with the
+development and distribution of this data will not be liable for any direct,
+indirect, special, incidental, or consequential damages arising out of the use
+or inability to use the FILES or any accompanying documentation.</gco:CharacterString>
+                    </useLimitation>
+                </MD_Constraints>
+            </resourceConstraints>
+            <language gco:nilReason="missing"/>
+            <characterSet>
+                <MD_CharacterSetCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8" codeSpace="ISOTC211/19115">utf8</MD_CharacterSetCode>
+            </characterSet>
+        </MD_DataIdentification>
+    </identificationInfo>
+</MD_Metadata>
