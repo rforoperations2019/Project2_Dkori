@@ -34,8 +34,7 @@ library(rvest)
 #read in address points
 address_points<-read_sf("Allegheny_County_Address_Points/Allegheny_County_Address_Points.shx")%>%
           st_transform(crs = "+init=epsg:4326")%>%
-  #limit just to Pittsburgh
-  filter(MUNICIPALI=="PITTSBURGH")%>%
+  #filter(MUNICIPALI=="PITTSBURGH")%>%
   #select 300 random addresses
   sample_n(500)%>%
   #create address in format for google maps search
@@ -93,11 +92,12 @@ groceries<-read_csv("data-conveniencesupermarkets.csv")%>%
   #exclude convenience stores
   filter(Category!="Convenience Store")%>%
   #create variable for full address in google maps api-readable format
-  mutate(grocery_address=paste0(Name,",+",Zip),
+  mutate(grocery_address=paste0(`Street #`,"+",`Street Name`,",+",Zip),
          grocery_address=gsub(" ","\\+",grocery_address))%>%
   st_as_sf(coords=c("Lon","Lat"),crs = "+init=epsg:4326")%>%
   #create separate column for grocery geometry to retain it after join
   mutate(grocery_geometry=geometry)
+
 #merge groceries with the address data by nearest distance
 with_grocery<-st_join(address_points,groceries,st_nearest_feature)
 
@@ -150,6 +150,8 @@ save(address_data, file="Alle_Co_Transit_Deserts/address_data.RData")
 ```
 
 ```{r maps_api}
+#load address data
+load("Alle_Co_Transit_Deserts/address_data.RData")
 #load API Key
 load("google_directions_api_key.RData")
 #create list of departure times
@@ -363,10 +365,10 @@ for(destination in chosen_destinations){
         transit_lines<-paste(transit_steps,collapse=", ")
         if(length(transit_steps)==0){transit_lines<-c("Walking Only")}
         #check if the walking distance is greater than a mile, and if it is, put it in unavailable
-        if(walking_distance>2414.02){
+        if(walking_distance>1609.34){
           temp_unavailable3<-data.frame(start_address=start_address,
                                         geometry<-address_points[i,]$geometry,
-                                       reason="Walk > 1.5 mile",
+                                       reason="Walk > 1 mile",
                                        soonest_departure="NA")
           unavailable<-rbind(unavailable,temp_unavailable3)
         }else{
@@ -397,6 +399,7 @@ for(destination in chosen_destinations){
   }
   transit_difficulties[[paste0(destination)]]<-for_destination
 }
+
 
 save(transit_difficulties,file="Alle_Co_Transit_Deserts/transit_difficulties2.RData")
 

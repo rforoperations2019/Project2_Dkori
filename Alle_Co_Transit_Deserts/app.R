@@ -21,7 +21,7 @@ library(shinytest)
 pdf(NULL)
 
 
-
+rm(list=ls())
 
 
 
@@ -62,7 +62,6 @@ sidebar <- dashboardSidebar(
                   "Show Bus Routes")
   )
 )
-
 
 # Dashboard body ----------------------------------------------
 body <- dashboardBody(tabItems(
@@ -109,6 +108,10 @@ server <- function(input, output) {
   load("address_data.RData")
   load("transit_difficulties2.RData")
   
+  #load bus routes
+  bus_routes<-read_sf("paacroutes1611/PAAC_Routes_1611.shx")%>%
+    st_transform(crs = "+init=epsg:4326")
+  
   #turn off scientific notation
   options(scipen=999)
   
@@ -130,11 +133,11 @@ server <- function(input, output) {
     paste0(input$transit_metric)
   })
   
-  #create a reactive object for adding bus routes
-  fixed_route<-reactive({
-    input$bus_routes
+  #create reactive for bus routes
+  bus_checked<-reactive({
+    paste0(input$bus_routes)
   })
-  
+
 
   #create react objects for available and unavailable routes based on radio button selections
   available<-reactive({
@@ -181,8 +184,7 @@ server <- function(input, output) {
                  domain = available()$chosen_stat, n = nrow(available()),
                  reverse=TRUE)
   })
-  
-  
+
   #initialize map 
   output$map<-renderLeaflet({
     
@@ -193,22 +195,24 @@ server <- function(input, output) {
       addProviderTiles(provider = "CartoDB.Positron") 
     #        addProviderTiles(provider="CartoDB.Positron")
   })
-  
+
   #create an observer that bus route lines if checked
-  # observe({
-  #   if(wheels2u()){
-  #     leafletProxy({"map"})%>%
-  #       clearGroup("wheels2u")%>%
-  #       addKML(kml=wheels2u_boundary,
-  #              stroke=FALSE,
-  #              opacity=.3,
-  #              color="blue",
-  #              group="wheels2u")
-  #   }else{
-  #     leafletProxy({"map"})%>%
-  #       clearGroup("wheels2u")
-  #   }
-  # })
+  observe({
+    if(bus_checked()){
+      leafletProxy({"map"})%>%
+        clearGroup("bus_routes")%>%
+        addPolylines(data=bus_routes,
+                     weight=1,
+                     #add label for bus route/line
+                     label=~paste(Route_Name,ROUTE),
+                     opacity=.5,
+                     color="black",
+                     group="bus_routes")
+    }else{
+      leafletProxy({"map"})%>%
+        clearGroup("bus_routes")
+    }
+  })
   
 
   #create star icon
@@ -241,8 +245,8 @@ server <- function(input, output) {
       addCircleMarkers(data=available()%>%st_as_sf(crs = "+init=epsg:4326"),popup =~pop_up,
                        layerId = ~`start_address`,
                        stroke=FALSE,
-                       radius=10,
-                       fillOpacity=0.8,
+                       radius=6,
+                       fillOpacity=0.5,
                        color=~pal()(chosen_stat),
                        group="avail"
                        )
@@ -257,20 +261,10 @@ server <- function(input, output) {
                  group="unavail")
   })
   
-  # #add the layer for unavailable routes
-  # icons <- awesomeIconList(
-  #   times_circle = makeAwesomeIcon(icon = "times-circle", library = "fa", markerColor = "red")
-  # )
+
   
   
-  
-  # observe({
-  #   leafletProxy("map")%>%
-  #     clearGroup("unavail")%>%
-  #     addCircleMarkers(data=unavail,
-  #                       #icon=icons["times_circle"],
-  #                       group="unavail")
-  # })
+
   #add legend to the chart
   # observe({
   #   leafletProxy("map")%>%
