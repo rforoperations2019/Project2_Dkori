@@ -22,7 +22,30 @@ pdf(NULL)
 
 
 rm(list=ls())
+#load bus api key
+load(file="bus_time_api_key.RData")
 
+################################ SET UP LIVE BUS LOCATION API ############################
+############# WAS HOPING TO MAKE THIS CLICK REACTIVE BUT COULDN'T MERGE ROUTES, SO USING DROPDOWN SELECT #####
+baseUrl <- "http://realtime.portauthority.org/bustime/api/v3/"
+#function to call API (from Geoff's code)
+getRealTime <- function(endpoint, params, response) {
+  if (missing(params)) {
+    url <- paste0(baseUrl, endpoint, "?format=json&key=", bus_time_api_key)
+  } else if (typeof(params) == "list") {
+    params_text <- paste0(names(params), "=", params, collapse = "&")
+    url <- paste0(baseUrl, endpoint, "?format=json&key=", key, "&", params_text)
+  }
+  json <- fromJSON(url)$`bustime-response`[[response]]
+  if (is.null(json)) {
+    return(data.frame())
+  } else {
+    return(json)
+  }
+}
+
+# Routes
+load.routes <- getRealTime("getroutes", response = "routes")
 
 
 header <- dashboardHeader(title = "Pittsburgh Transit Deserts"
@@ -43,14 +66,14 @@ sidebar <- dashboardSidebar(
                  "Destination",
                  c("Nearest Grocery Store"="grocery",
                    "Nearest Hospital"="hospital"),
-                 selected="grocery"),
+                 selected="hospital"),
     #radio buttons to choose departure time
     radioButtons("departure_time",
                  "Departure Time",
                  c("Friday Morning (8am)"="1571400000",
                    "Friday at noon"="1571414400",
                    "Friday Evening (5pm)"="1571432400"),
-                 selected="1571400000"),
+                 selected="1571414400"),
     #radio button to chose measure of transit difficult
     radioButtons("transit_metric",
                  "Measure of Public Transit Difficulty",
@@ -59,7 +82,13 @@ sidebar <- dashboardSidebar(
                    "Total walking distance (mi.)"="Total Distance to/from transit stops")),
     #checkbox to select if bus route lines should be shown
     checkboxInput("bus_routes",
-                  "Show Bus Routes")
+                  "Show Bus Routes"),
+    #dropdown to show live bus routes
+    selectInput("routeSelect",
+                       "Show Live Bus Locations:",
+                       choices = c(" ",sort(load.routes$rt)),
+                       selected = " ")
+    
   )
 )
 
@@ -74,7 +103,8 @@ body <- dashboardBody(tabItems(
           #fluidRow(
           box(title = "Pittsburgh Transit Deserts",
               width = 12,
-              leafletOutput("map"))
+              leafletOutput("map"),
+              uiOutput(outputId="directions"))
           #)
   ),
   
@@ -102,7 +132,21 @@ ui <- dashboardPage(header, sidebar, body)
 
 # Create plots in the server function
 server <- function(input, output) {
+
+
   
+
+  
+  #create reactive for displaying directions on click
+  output$directions<-reactive({
+    
+    if(!is.null(marker_click())){
+      temp<-available()%>%
+        dplyr::filter(start_address==marker_click())
+      paste0(temp$Instructions)
+    }
+    
+  })
   #load data
   
   load("address_data.RData")
@@ -138,10 +182,25 @@ server <- function(input, output) {
     paste0(input$bus_routes)
   })
 
-
+# test2<-transit_difficulties[[1]][[1]][[1]]
+# test<-address_data[["grocery"]]
+  # test4<-test2%>%
+  #   left_join(test%>%
+  #               mutate(address_number=1:500,
+  #                      address_number=as.character(address_number)),by="address_number")%>%
+  #   dplyr::select(-starts_with("geometry"))
   #create react objects for available and unavailable routes based on radio button selections
   available<-reactive({
+    #select shape file data for chosen destination (grocery or hospital)
+    destination_data<-address_data[[chosen_destination()]]%>%
+      #add row_num to allow merge
+      mutate(address_number=1:500,
+             address_number=as.character(address_number))
+    
+    
+    #select extracted route information for chosen dataset
     transit_difficulties[[chosen_destination()]][[chosen_departure_time()]][["available"]]%>%
+      left_join(destination_data,by="address_number")%>%
     #transit_difficulties[[chosen_destination()]][[chosen_departure_time()]][["available"]]%>%
       #since walking distance is in meters, make it miles
       mutate(`Total Distance to/from transit stops`=`Total Distance to/from transit stops`/1609.34)%>%
@@ -153,10 +212,37 @@ server <- function(input, output) {
                           paste0("<b>Number of Transfers: </b>",`Number of Transfers`),
                           paste0("<b>Total Distance to/from transit stops: </b>",
                                  round(`Total Distance to/from transit stops`,1)),
-                          paste0("<b>Transit Lines Used: </b>", `Transit Lines`)))%>%
+                          paste0("<b>Closest ",chosen_destination(),":</b> ",Name)
+                          ))%>%
       #limit only to stat selected
       dplyr::rename("chosen_stat"=chosen_stat())
   })
+  #create star icon
+  star<-makeIcon(
+    iconUrl="www/star_dark.png",
+    iconWidth = 35, iconHeight=35
+  )
+
+  #show destination on click
+  observe({
+    #test if the marker is clicked
+    if(!is.null(marker_click())){
+      #start with available
+      add_destination<-available()%>%
+        #remove existing geometry
+        dplyr::select(-starts_with("geometry"))%>%
+        #rename grocery/hospital geometry as just geometry
+        rename(geometry=paste0(chosen_destination(),"_geometry"))%>%
+        filter(start_address==marker_click())
+      
+      #add destination to leaflet
+      leafletProxy({"map"})%>%
+        clearGroup("destination")%>%
+        addMarkers(data=add_destination%>%st_as_sf(crs = "+init=epsg:4326"),
+                   icon=star,group="destination")
+    }
+  })
+  
   
   #create a list of directions to display below map
   output$directions<-reactive({
@@ -215,11 +301,7 @@ server <- function(input, output) {
   })
   
 
-  #create star icon
-  # star<-makeIcon(
-  #   iconUrl="www/star_dark.png",
-  #   iconWidth = 35, iconHeight=35
-  # )
+
   
   #add the destination to the map upon click
   # observe({
@@ -266,17 +348,17 @@ server <- function(input, output) {
   
 
   #add legend to the chart
-  # observe({
-  #   leafletProxy("map")%>%
-  #     clearControls()%>%
-  #     clearGroup("legend")%>%
-  #     addLegend(data=available(),"bottomright",
-  #               pal = pal(),
-  #               values = ~ chosen_stat,
-  #               title = gsub('/','/</br>',chosen_stat()),
-  #               opacity = 1,
-  #               group="legend")
-  # })
+  observe({
+    leafletProxy("map")%>%
+      clearControls()%>%
+      clearGroup("legend")%>%
+      addLegend(data=available(),"bottomright",
+                pal = pal(),
+                values = ~ chosen_stat,
+                title = gsub('/','/</br>',chosen_stat()),
+                opacity = 1,
+                group="legend")
+  })
   
   
 }

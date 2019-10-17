@@ -214,7 +214,6 @@ paste(as.numeric(chosen_departure_times))
 ```
 
 ```{r parse_raw_difficulties}
-
 #count total number of status not okays
 # okays<-c()
 # not_okays<-c()
@@ -295,6 +294,8 @@ for(destination in chosen_destinations){
                           `Total Distance to/from transit stops`=0,
                           `Transit Lines`="",
                           `Instructions`="",
+                          #create number to store i in for later joins
+                          address_number="",
                           check.names=FALSE,
                           stringsAsFactors=FALSE)[0,]
     for(i in 1:length(depart_time_info)){
@@ -325,11 +326,11 @@ for(destination in chosen_destinations){
         available_departure_time<-depart_time
       }
       #test if available departure time is too far out from departure time
-      if(available_departure_time-depart_time>90){
+      if(available_departure_time-depart_time>60){
         #store results in temp unavailable, append to unavailable
         temp_unavailable2<-data.frame(start_address=start_address,
                                      geometry<-address_points[i,]$geometry,
-                                     reason="Wait time > 90 min",
+                                     reason="Wait time > 1 hr",
                                      soonest_departure=paste0(available_departure_time))
         unavailable<-rbind(unavailable,temp_unavailable2)
       }else{
@@ -342,8 +343,9 @@ for(destination in chosen_destinations){
         instructions<-c()
         for(j in 1:length(steps)){
           step<-steps[[j]]
+          distance<-step$distance$text
           #store the html instruction as object that will go in an html list
-          instruction<-paste0("<li>",step$html_instructions,"</li>")
+          instruction<-paste0("<li>",step$html_instructions," - ",distance, "</li>")
           
           #append to other instructions
           instructions<-paste0(instructions,instruction)
@@ -379,7 +381,8 @@ for(destination in chosen_destinations){
                                      `Number of Transfers`=transfers,
                                      `Total Distance to/from transit stops`=walking_distance,
                                      `Transit Lines`=transit_lines,
-                                     Instructions<-instructions,
+                                     Instructions=instructions,
+                                     address_number=as.character(i),
                                      check.names=FALSE,
                                      stringsAsFactors=FALSE
                                      )
