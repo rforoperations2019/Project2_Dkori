@@ -21,9 +21,9 @@ library(jsonlite)
 library(leaflet)
 library(leaflet.extras)
 library(sf)
-
+library(DT)
 # Avoid plotly issues ----------------------------------------------
-pdf(NULL)
+#pdf(NULL)
 
 
 rm(list=ls())
@@ -87,12 +87,8 @@ sidebar <- dashboardSidebar(
                    "Total walking distance (mi.)"="Total Distance to/from transit stops")),
     #checkbox to select if bus route lines should be shown
     checkboxInput("bus_routes",
-                  "Show Bus Routes"),
-    #dropdown to show live bus routes
-    selectInput("routeSelect",
-                       "Show Live Bus Locations:",
-                       choices = c(" ",sort(load.routes$rt)),
-                       selected = " ")
+                  "Show Bus Routes")#,
+
     
   )
 )
@@ -108,26 +104,33 @@ body <- dashboardBody(tabItems(
           #fluidRow(
           box(title = "Pittsburgh Transit Deserts",
               width = 12,
+              HTML("The dots below are 500 randomly selected addresses in Allegheny County. </br> The colors of the dots below indicate the difficulty of getting from that dot to the nearest selected destination using only public transportation. Click the dot to see the nearest location and view public transit journey information."),
               leafletOutput("map"),
+              #dropdown to show live bus routes
+              selectInput("routeSelect",
+                          "Show Live Bus Locations:",
+                          choices = c(" ",sort(load.routes$rt)),
+                          selected = " "),
+              uiOutput(outputId="current_unavailable"),
               uiOutput(outputId="directions"))
           #)
   ),
   
-  #Breakdown plot page
-  tabItem("plot_tab", class = "active"#,
+  #Charts plot page
+  tabItem("plot_tab", class = "active",
           
-          # # Plot ----------------------------------------------
-          # tabBox(title = "Summary Charts",
-          #        width = 12,
-          #        tabPanel("Average Difficulty per Locality", plotlyOutput(outputId = "bar_plot")),
-          #        tabPanel("Seasonality",plotlyOutput(outputId="seasonality")),
-          #        tabPanel("Overall Share",plotOutput(outputId="donut")))
+          # Plot ----------------------------------------------
+          tabBox(title = "Summary Charts",
+                 width = 12,
+                 tabPanel("Average Difficulty per Locality", plotlyOutput(outputId = "plot1"))#,
+                 #tabPanel("Overall Share",plotOutput(outputId="donut"))
+                 )
           
   ),
   
   # Table Page ----------------------------------------------
-  tabItem("table_tabl", class = "active"#,
-    #      box(title = "Data Table", DT::dataTableOutput("datatab")))
+  tabItem("table_tab", class = "active",
+         box(title = "Data Table", DT::dataTableOutput("datatab"))
 )
 ))
 
@@ -138,11 +141,6 @@ ui <- dashboardPage(header, sidebar, body)
 # Create plots in the server function
 server <- function(input, output) {
 
-
-  routesInput <- reactive({
-    routes <- filter(load.routes, rt %in% input$routeSelect)
-  })
-  
 
   
 
@@ -194,11 +192,11 @@ server <- function(input, output) {
 
 # test2<-transit_difficulties[[1]][[1]][[1]]
 # test<-address_data[["grocery"]]
-  # test4<-test2%>%
-  #   left_join(test%>%
-  #               mutate(address_number=1:500,
-  #                      address_number=as.character(address_number)),by="address_number")%>%
-  #   dplyr::select(-starts_with("geometry"))
+# test4<-test2%>%
+#   left_join(test%>%
+#             mutate(address_number=1:500,
+#                    address_number=as.character(address_number)),by="address_number")
+
   #create react objects for available and unavailable routes based on radio button selections
   available<-reactive({
     #select shape file data for chosen destination (grocery or hospital)
@@ -227,6 +225,52 @@ server <- function(input, output) {
       #limit only to stat selected
       dplyr::rename("chosen_stat"=chosen_stat())
   })
+  
+  ############################################################################################################
+  ###############################  CREATE CHARTS      ########################################################
+  
+  # plot 1: average difficulty by municipality for chosen stat and departure time
+  output$plot1<-renderPlotly({
+    for_plot1<-available()%>%
+      as.data.frame()%>%
+      group_by(MUNICIPALI)%>%
+      summarise(chosen_stat=mean(chosen_stat))%>%
+      ungroup()
+    
+      ggplot(data=for_plot1,aes(x=MUNICIPALI,y=chosen_stat))+
+        geom_bar(stat="identity")+
+        coord_flip()+
+        labs(title="Average Difficulty Per Municipality",
+             y=chosen_stat(),
+             x="Municipality")
+  })
+
+  
+  
+  
+  ############################################################################################################
+  ############################################# CREATE DATA TABLE ###########################################################
+  dt_reactive<-reactive({
+    
+    temp<-available()#%>%
+    #getting absurd errors trying to reassign the original name to chosen stat within available(), so had to use this weird construction
+    names(temp)[names(temp)=="chosen_stat"]<-chosen_stat()
+    #select only relevant transit columns
+    temp%>%
+      select("Start Address"=start_address,"Destination Name"=Name,
+            `Total Transit Time`, `Number of Transfers`,
+            `Total Distance to/from transit stops`,`Transit Lines`)%>%
+      #round some of these numbers
+      mutate(`Total Transit Time`=round(`Total Transit Time`),
+             `Total Distance to/from transit stops`=round(`Total Distance to/from transit stops`,2))
+  })
+  output$datatab<-DT::renderDataTable(
+    dt_reactive()
+
+
+  )
+  ############################################################################################################
+  
   #create star icon
   star<-makeIcon(
     iconUrl="www/star_dark.png",
@@ -299,13 +343,26 @@ server <- function(input, output) {
     iconWidth = 35, iconHeight=35
   )
   
+  ###################################### FOR API CALL ######################################
+  routesInput <- reactive({
+    routes <- filter(load.routes, rt %in% input$routeSelect)
+  })
+  
   #create observer that checks if a route is selected for live vehicle display and if it is, adds vehicle locations to map
   observe({
     #condition on a route being selected
-    if(input$routeSelect!=" "){
+    if(input$routeSelect==" "){
+      #make output$current_unavailable blank
+      output$current_unavailable<-reactive({""})
+      #clear map 
+      leafletProxy({"map"})%>%
+        clearGroup("live_vehicles")
+    }else{
       #call API for selected route
       vehicles <- getRealTime("getvehicles", list(rt = paste(routesInput()$rt, collapse =",")), "vehicle")
       if(nrow(vehicles>0)){
+        #make output$current_unavailable blank
+        output$current_unavailable<-reactive({""})
         #add vehicles to map
         leafletProxy({"map"})%>%
           clearGroup("live_vehicles")%>%
@@ -313,22 +370,21 @@ server <- function(input, output) {
                        #make lat and lon numeric
                        mutate(lat = as.numeric(lat),
                               lon = as.numeric(lon)),icon=bus_icon,group="live_vehicles")
-      }else{
+        }else{
+        output$current_unavailable<-reactive({"No Vehicles for this line currently in service"})
         leafletProxy({"map"})%>%
           clearGroup("live_vehicles")
         
       }
 
       
-    }else{
-      leafletProxy({"map"})%>%
-        clearGroup("live_vehicles")
     }
     
     
     
   })
-  #create an observer that bus route lines if checked
+############################################################################################################
+  #create an observer for if bus route lines iS checked
   observe({
     if(bus_checked()){
       leafletProxy({"map"})%>%
