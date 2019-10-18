@@ -17,6 +17,11 @@ library(scales)
 library(readr)
 library(plotly)
 library(shinytest)
+library(jsonlite)
+library(leaflet)
+library(leaflet.extras)
+library(sf)
+
 # Avoid plotly issues ----------------------------------------------
 pdf(NULL)
 
@@ -34,7 +39,7 @@ getRealTime <- function(endpoint, params, response) {
     url <- paste0(baseUrl, endpoint, "?format=json&key=", bus_time_api_key)
   } else if (typeof(params) == "list") {
     params_text <- paste0(names(params), "=", params, collapse = "&")
-    url <- paste0(baseUrl, endpoint, "?format=json&key=", key, "&", params_text)
+    url <- paste0(baseUrl, endpoint, "?format=json&key=", bus_time_api_key, "&", params_text)
   }
   json <- fromJSON(url)$`bustime-response`[[response]]
   if (is.null(json)) {
@@ -133,6 +138,11 @@ ui <- dashboardPage(header, sidebar, body)
 # Create plots in the server function
 server <- function(input, output) {
 
+
+  routesInput <- reactive({
+    routes <- filter(load.routes, rt %in% input$routeSelect)
+  })
+  
 
   
 
@@ -282,6 +292,42 @@ server <- function(input, output) {
     #        addProviderTiles(provider="CartoDB.Positron")
   })
 
+  
+  #create star icon
+  bus_icon<-makeIcon(
+    iconUrl="www/bus.png",
+    iconWidth = 35, iconHeight=35
+  )
+  
+  #create observer that checks if a route is selected for live vehicle display and if it is, adds vehicle locations to map
+  observe({
+    #condition on a route being selected
+    if(input$routeSelect!=" "){
+      #call API for selected route
+      vehicles <- getRealTime("getvehicles", list(rt = paste(routesInput()$rt, collapse =",")), "vehicle")
+      if(nrow(vehicles>0)){
+        #add vehicles to map
+        leafletProxy({"map"})%>%
+          clearGroup("live_vehicles")%>%
+          addMarkers(data=vehicles%>%
+                       #make lat and lon numeric
+                       mutate(lat = as.numeric(lat),
+                              lon = as.numeric(lon)),icon=bus_icon,group="live_vehicles")
+      }else{
+        leafletProxy({"map"})%>%
+          clearGroup("live_vehicles")
+        
+      }
+
+      
+    }else{
+      leafletProxy({"map"})%>%
+        clearGroup("live_vehicles")
+    }
+    
+    
+    
+  })
   #create an observer that bus route lines if checked
   observe({
     if(bus_checked()){
