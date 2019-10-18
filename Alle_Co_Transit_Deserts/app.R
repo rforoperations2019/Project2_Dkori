@@ -53,7 +53,7 @@ getRealTime <- function(endpoint, params, response) {
 load.routes <- getRealTime("getroutes", response = "routes")
 
 
-header <- dashboardHeader(title = "Pittsburgh Transit Deserts"
+header <- dashboardHeader(title = "Transit Deserts"
 )
 
 # Dashboard Sidebar ----------------------------------------------
@@ -104,7 +104,7 @@ body <- dashboardBody(tabItems(
           
           # Plot ----------------------------------------------
           #fluidRow(
-          box(title = "Pittsburgh Transit Deserts",
+          box(title = "Allegheny County Transit Deserts",
               width = 12,
               HTML("The dots below are 500 randomly selected addresses in Allegheny County. </br> The colors of the dots below indicate the difficulty of getting from that dot to the nearest selected destination using only public transportation. Click the dot to see the nearest location and view public transit journey information."),
               leafletOutput("map"),

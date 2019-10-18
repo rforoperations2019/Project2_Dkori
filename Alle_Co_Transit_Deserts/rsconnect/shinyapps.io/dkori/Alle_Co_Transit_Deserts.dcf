@@ -5,8 +5,8 @@ account: dkori
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1346521
-bundleId: 2511995
+bundleId: 2512129
 url: https://dkori.shinyapps.io/Alle_Co_Transit_Deserts/
-when: 1571412598.0805
+when: 1571415616.62151
 asMultiple: FALSE
 asStatic: FALSE
