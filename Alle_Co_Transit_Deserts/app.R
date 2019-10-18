@@ -131,7 +131,8 @@ body <- dashboardBody(tabItems(
   
   # Table Page ----------------------------------------------
   tabItem("table_tab", class = "active",
-         box(title = "Data Table", DT::dataTableOutput("datatab"))
+          downloadButton("downloadData", "Download"),
+          box(title = "Data Table", DT::dataTableOutput("datatab"))
 )
 ))
 
@@ -313,12 +314,22 @@ test4<-test2%>%
       mutate(`Total Transit Time`=round(`Total Transit Time`),
              `Total Distance to/from transit stops`=round(`Total Distance to/from transit stops`,2))
   })
+  
+  #create data table output
   output$datatab<-DT::renderDataTable(
     
     DT::datatable(dt_reactive())
 
 
   )
+  #for download button
+  output$downloadData<-downloadHandler(
+    filename="transit_difficulties.csv",
+    content=function(file){
+      write.csv(dt_reactive(), file, row.names = FALSE)
+    }
+  )
+  
   ############################################################################################################
   
   #create star icon
