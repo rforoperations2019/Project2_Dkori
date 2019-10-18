@@ -122,10 +122,11 @@ body <- dashboardBody(tabItems(
           # Plot ----------------------------------------------
           tabBox(title = "Summary Charts",
                  width = 12,
-                 tabPanel("Average Difficulty per Locality", plotlyOutput(outputId = "plot1"))#,
-                 #tabPanel("Overall Share",plotOutput(outputId="donut"))
+                 height="1000px",
+                 tabPanel("Average difficulty per municipality", plotlyOutput(outputId = "plot1")),
+                 tabPanel("Addresses served by location",plotOutput(outputId="plot2"))
                  )
-          
+
   ),
   
   # Table Page ----------------------------------------------
@@ -190,12 +191,12 @@ server <- function(input, output) {
     paste0(input$bus_routes)
   })
 
-# test2<-transit_difficulties[[1]][[1]][[1]]
-# test<-address_data[["grocery"]]
-# test4<-test2%>%
-#   left_join(test%>%
-#             mutate(address_number=1:500,
-#                    address_number=as.character(address_number)),by="address_number")
+test2<-transit_difficulties[[1]][[1]][[1]]
+test<-address_data[["grocery"]]
+test4<-test2%>%
+  left_join(test%>%
+            mutate(address_number=1:500,
+                   address_number=as.character(address_number)),by="address_number")
 
   #create react objects for available and unavailable routes based on radio button selections
   available<-reactive({
@@ -234,20 +235,68 @@ server <- function(input, output) {
     for_plot1<-available()%>%
       as.data.frame()%>%
       group_by(MUNICIPALI)%>%
-      summarise(chosen_stat=mean(chosen_stat))%>%
+      summarise(locations=length(chosen_stat),
+        chosen_stat=mean(chosen_stat)
+                )%>%
       ungroup()
     
-      ggplot(data=for_plot1,aes(x=MUNICIPALI,y=chosen_stat))+
+      ggplot(data=for_plot1,aes(x=MUNICIPALI,y=chosen_stat,fill=locations))+
         geom_bar(stat="identity")+
-        coord_flip()+
         labs(title="Average Difficulty Per Municipality",
              y=chosen_stat(),
-             x="Municipality")
+             x="Municipality")+
+        theme(axis.text.x=element_text(size=rel(0.5), angle=90))+
+        scale_fill_continuous()
+  })
+  
+  #plot 2: number of locations corresponding to chosen destination
+  output$plot2<-renderPlot({
+    
+    palette_choice<-"Paired"
+    #summarize by number of locations per destinations
+    for_plot2<-available()%>%
+      as.data.frame()%>%
+      group_by(Name)%>%
+      summarise(locations=length(start_address))%>%
+      ungroup()
+    
+    for_plot2%>%
+      filter(locations>20)%>%
+      mutate(ymax=cumsum(locations),ymin=c(0,head(ymax,n=-1)))%>%
+      ggplot(
+             aes(fill=Name,ymin=ymin,ymax=ymax,xmin=3,xmax=5,label=Name),colour="white")+
+      #make chart rectangular
+      geom_rect()+
+      #convert rectangular chart to polar (donut)
+      coord_polar(theta="y")+
+      xlim(c(0,5))+
+      #remove background
+      theme_void() +
+      #remove x and y value labels
+      xlab("")+
+      ylab("")+
+      #remove other aesthetic elements of chart
+      theme(panel.grid=element_blank()) +
+      theme(axis.text=element_blank()) +
+      theme(axis.ticks=element_blank()) +
+      #center title
+      theme(plot.title = element_text(hjust = 0.5))+
+      #place legend on bottom with no legend title
+      theme(legend.title=element_blank())+
+      theme(legend.position="bottom")+
+      #resize legend items to fit well
+      guides(fill=guide_legend(nrow=2,byrow=TRUE,keywidth=.4,keyheight=.2,default.unit="inch"),
+             color="none")+
+      geom_label(
+        aes(x=4,y=(ymax+ymin)/2,label=comma(locations)),
+        label.size=.175,
+        show.legend=FALSE)+
+      labs(title="Addresses served by Destination\n (minimum 20)")+
+      scale_fill_brewer(palette=palette_choice)
   })
 
-  
-  
-  
+
+
   ############################################################################################################
   ############################################# CREATE DATA TABLE ###########################################################
   dt_reactive<-reactive({
@@ -265,7 +314,8 @@ server <- function(input, output) {
              `Total Distance to/from transit stops`=round(`Total Distance to/from transit stops`,2))
   })
   output$datatab<-DT::renderDataTable(
-    dt_reactive()
+    
+    DT::datatable(dt_reactive())
 
 
   )
