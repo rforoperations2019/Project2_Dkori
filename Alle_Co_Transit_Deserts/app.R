@@ -87,7 +87,9 @@ sidebar <- dashboardSidebar(
                    "Total walking distance (mi.)"="Total Distance to/from transit stops")),
     #checkbox to select if bus route lines should be shown
     checkboxInput("bus_routes",
-                  "Show Bus Routes")#,
+                  "Show Bus Routes"),
+    (uiOutput(outputId="hover_explanation"))
+    
 
     
   )
@@ -131,8 +133,12 @@ body <- dashboardBody(tabItems(
   
   # Table Page ----------------------------------------------
   tabItem("table_tab", class = "active",
-          downloadButton("downloadData", "Download"),
-          box(title = "Data Table", DT::dataTableOutput("datatab"))
+          tabBox(title="Data Table",
+            width=24,
+            tabPanel(title = "Data Table", DT::dataTableOutput("datatab")),
+            tabPanel(title="Download",downloadButton("downloadData", "Download"))
+            
+          )
 )
 ))
 
@@ -239,11 +245,12 @@ test4<-test2%>%
       summarise(locations=length(chosen_stat),
         chosen_stat=mean(chosen_stat)
                 )%>%
-      ungroup()
+      ungroup()%>%
+      filter(locations>10)
     
       ggplot(data=for_plot1,aes(x=MUNICIPALI,y=chosen_stat,fill=locations))+
         geom_bar(stat="identity")+
-        labs(title="Average Difficulty Per Municipality",
+        labs(title="Average Difficulty Per Municipality\n(Minimum 10 addresses)",
              y=chosen_stat(),
              x="Municipality")+
         theme(axis.text.x=element_text(size=rel(0.5), angle=90))+
@@ -448,6 +455,8 @@ test4<-test2%>%
   #create an observer for if bus route lines iS checked
   observe({
     if(bus_checked()){
+      #explain that you can hover over bus routes when checked
+      output$hover_explanation<-reactive({"Hover cursor over bus route</br>to view bus lines"})
       leafletProxy({"map"})%>%
         clearGroup("bus_routes")%>%
         addPolylines(data=bus_routes,
@@ -458,6 +467,7 @@ test4<-test2%>%
                      color="black",
                      group="bus_routes")
     }else{
+      output$hover_explanation<-reactive({" "})
       leafletProxy({"map"})%>%
         clearGroup("bus_routes")
     }
